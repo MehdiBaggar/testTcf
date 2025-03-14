@@ -352,8 +352,8 @@ onMounted(() => {
                 <img class="rounded-circle header-profile-user" src="@/assets/images/noImage.png"
                   alt="Header Avatar">
                 <span class="text-start ms-xl-2">
-                  <span class="d-none d-xl-inline-block ms-1 fw-semibold user-name-text">{{ user.email }}</span>
-                  <span class="d-none d-xl-block ms-1 fs-13 user-name-sub-text">{{ user.roles }}</span>
+                  <span class="d-none d-xl-inline-block ms-1 fw-semibold user-name-text"></span>
+                  <span class="d-none d-xl-block ms-1 fs-13 user-name-sub-text"></span>
                 </span>
               </span>
             </template>

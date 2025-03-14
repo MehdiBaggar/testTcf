@@ -19,7 +19,7 @@ class TestRepository extends ServiceEntityRepository
     //    /**
     //     * @return Test[] Returns an array of Test objects
     //     */
-    //    public function findByExampleField($value): array
+    //    public_html function findByExampleField($value): array
     //    {
     //        return $this->createQueryBuilder('t')
     //            ->andWhere('t.exampleField = :val')
@@ -31,7 +31,7 @@ class TestRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Test
+    //    public_html function findOneBySomeField($value): ?Test
     //    {
     //        return $this->createQueryBuilder('t')
     //            ->andWhere('t.exampleField = :val')

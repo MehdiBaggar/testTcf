@@ -255,39 +255,13 @@ export default {
           <span data-key="t-menu"> {{ $t("t-menu") }}</span>
         </li>
         <li class="nav-item">
-          <router-link to="/" class="nav-link" data-key="t-home">
-            <i class="ri-dashboard-line"></i>
-            {{ $t("Dashboard") }}
-
-          </router-link>
-        </li>
-        <li class="nav-item">
-          <router-link to="/contrat" class="nav-link" data-key="t-Contrat">
-            <i class="ri-file-line"></i>
-            {{ $t("Contrat") }}
-
-          </router-link>
-        </li>
-        <li class="nav-item">
-          <router-link to="/tcf/test" class="nav-link" data-key="t-Tcf">
+          <router-link to="/" class="nav-link" data-key="t-Tcf">
             <i class="ri-task-line"></i>
             {{ $t("TCF") }}
 
           </router-link>
         </li>
-        <li class="nav-item">
-          <router-link to="/fields/:id" class="nav-link" data-key="t-Fields">
-            <i class="ri-add-box-line"></i>
-            {{ $t("Fields") }}
 
-          </router-link>
-        </li> <li class="nav-item">
-          <router-link to="/China" class="nav-link" data-key="t-China">
-            <i class="ri-earth-line"></i>
-            {{ $t("China") }}
-
-          </router-link>
-        </li>
       </ul>
     </template>
 

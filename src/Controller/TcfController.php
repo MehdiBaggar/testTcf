@@ -6,7 +6,9 @@ use App\Entity\Question;
 use App\Entity\ReponseEtudiant;
 use App\Entity\Test;
 use App\Repository\QuestionRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -14,6 +16,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
+
 
 final class TcfController extends AbstractController
 {
@@ -24,26 +29,33 @@ final class TcfController extends AbstractController
             'controller_name' => 'TcfController',
         ]);
     }
+    #[Route('/AllQuestions', name: 'app_tcf_AllQuestions')]
+    public function questions(): Response
+    {
+        return $this->render('tcf/AllQuestions.html.twig', [
+            'controller_name' => 'TcfController',
+        ]);
+    }
     #[Route('/api/test/questions', name: 'app_question', methods: ['GET'])]
     public function getQuestions(ManagerRegistry $doctrine): JsonResponse
     {
         $questionRepository = $doctrine->getRepository(Question::class);
 
-        // Define types and limits
+
         $typesWithLimits = [
             'Compréhension orale' => 15,
             'Maîtrise des structures de la langue' => 10,
             'Compréhension de la langue écrite' => 15
         ];
 
-        // Fetch the randomized questions
+
         $questions = $questionRepository->findRandomQuestionsByTypeAndLimit($typesWithLimits);
 
         if (empty($questions)) {
             return new JsonResponse(["error" => "Aucune question trouvée"], 404);
         }
 
-        // Convert the question objects into an array of data
+
         $questionsData = array_map(function ($question) {
             return [
                 'id' => $question->getId(),
@@ -65,12 +77,12 @@ final class TcfController extends AbstractController
     {
         $manager = $doctrine->getManager();
         $data = json_decode($request->getContent(), true);
-        $user = $this->getUser(); // Get the logged-in user
+        $user = $this->getUser();
         $test = new Test();
         $test->setUser($user);
         $test->setData(new \DateTime());
 
-        // Check if answers are provided in correct format
+
         if (!isset($data['answers']) || !is_array($data['answers'])) {
             return new JsonResponse(['error' => 'Invalid data format'], 400);
         }
@@ -82,23 +94,23 @@ final class TcfController extends AbstractController
             $question = $manager->getRepository(Question::class)->find($answer['questionId']);
 
             if (!$question) {
-                continue; // Skip if the question does not exist
+                continue;
             }
 
-            // Check if the user's answer is correct
+
             $isCorrect = $question->getReponseCorrecte() === $answer['response'];
             if ($isCorrect) {
                 $reponseCorrecte++;
             }
 
-            // Collect the response details
+
             $responsesDetails[] = [
                 'questionId' => $answer['questionId'],
                 'isCorrect' => $isCorrect,
 
             ];
 
-            // Store the response in the ReponseEtudiant table
+
             $reponseEtudiant = new ReponseEtudiant();
             $reponseEtudiant->setTest($test);
             $reponseEtudiant->setQuestion($question);
@@ -108,10 +120,10 @@ final class TcfController extends AbstractController
             $manager->persist($reponseEtudiant);
         }
 
-        // Save the test and all responses to the database
+
         $manager->flush();
 
-        // Simplify the response details for the client
+
         $simplifiedResponsesDetails = array_map(function ($responseDetail) {
             return [
                 'questionId' => $responseDetail['questionId'],
@@ -120,11 +132,11 @@ final class TcfController extends AbstractController
             ];
         }, $responsesDetails);
 
-        // Calculate the score and determine the level
+
         $score = $reponseCorrecte * 17.5;
         $niveau = $this->determineNiveau($score);
 
-        // Store the test details
+
         $test->setScoreTotal($score);
         $test->setNiveau($niveau);
 
@@ -166,8 +178,8 @@ final class TcfController extends AbstractController
             $audioFileName = uniqid() . '.' . $audioFile->guessExtension();
 
             try {
-                // Déplacer le fichier dans le répertoire public/audio
-                $audioFile->move($this->getParameter('kernel.project_dir') . '/public/audio', $audioFileName);
+                // Déplacer le fichier dans le répertoire public_html/audio
+                $audioFile->move($this->getParameter('kernel.project_dir') . '/public_html/audio', $audioFileName);
                 // Sauvegarder l'URL dans la base de données
                 $question->setAudio('/audio/' . $audioFileName);
             } catch (FileException $e) {
@@ -213,4 +225,90 @@ final class TcfController extends AbstractController
             return 'null';
         }
     }
+    #[Route('/api/get/questions', name: 'all_forms', methods: ['GET'])]
+    public function getAllForms(QuestionRepository $questionRepository, SerializerInterface $serializer): JsonResponse
+    {
+        $questions = $questionRepository->findAll();
+
+        // Use Serializer to convert objects to JSON
+        $data = $serializer->serialize($questions, 'json', ['groups' => ['question']]);
+        return new JsonResponse($data, Response::HTTP_OK, [], true); // Return JSON response
+    }
+    #[Route('/api/delete/question/{id}', name: 'form_delete', methods: ['DELETE'])]
+    public function delete(int $id, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $question = $entityManager->getRepository(Question::class)->find($id);
+
+        if (!$question) {
+            return new JsonResponse(['message' => 'Form not found'], Response::HTTP_NOT_FOUND);
+        }
+        $entityManager->remove($question);
+        $entityManager->flush();
+
+        return new JsonResponse(['message' => 'Form deleted successfully'], Response::HTTP_OK);
+    }
+    #[Route('/questions/{id}', name: 'app_question_show', methods: ['GET'])]
+    public function show(Question $question, SerializerInterface $serializer): JsonResponse
+    {
+        $data = $serializer->serialize($question, 'json', ['groups' => ['question']]);
+
+        return new JsonResponse($data, Response::HTTP_OK, [], true); // Use Response::HTTP_OK (200)
+    }
+    #[Route('/edit/questions/{id}', name: 'app_question_update', methods: ['POST'])]
+    public function update(
+        Request $request,
+        Question $question,
+        EntityManagerInterface $entityManager,
+        SluggerInterface $slugger,
+        LoggerInterface $logger // Inject the logger
+    ): Response {
+        $questionData = $request->request->all(); // Get all data except files
+        $logger->info('Question Data: ' . json_encode($questionData));
+
+        $audioFile = $request->files->get('audio'); // Get the audio file
+
+        // Check if the question exists
+        if (!$question) {
+            return new Response('Question not found', Response::HTTP_NOT_FOUND);
+        }
+
+        // Validate required fields (you might want to use Symfony's Form component for more robust validation)
+        if (empty($questionData['question']) || empty($questionData['type']) || empty($questionData['difficulteeeee']) || empty($questionData['reponseCorrecte']) || empty($questionData['reponses'])) {
+            return new Response('Missing required fields', Response::HTTP_BAD_REQUEST);
+        }
+
+        //Update the question
+        $question->setQuestion($questionData['question']);
+        $question->setType($questionData['type']);
+        $question->setDifficulteeeee($questionData['difficulteeeee']);
+        $question->setReponseCorrecte($questionData['reponseCorrecte']);
+        $question->setReponses(json_decode($questionData['reponses'], true)); // Decode the JSON string to array
+
+        // Handle audio file upload
+        if ($audioFile) {
+            $originalFilename = pathinfo($audioFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFilename = $slugger->slug($originalFilename);
+            $newFilename = $safeFilename . '-' . uniqid() . '.' . $audioFile->guessExtension();
+
+            try {
+                $audioFile->move(
+                    $this->getParameter('audio_directory'), // Define this parameter in services.yaml
+                    $newFilename
+                );
+
+                $question->setAudio($newFilename); // Save the filename in the database
+            } catch (FileException $e) {
+                // ... handle exception if something happens during file upload
+                $logger->error('File upload error: ' . $e->getMessage()); // Log the error
+                return new Response('Failed to upload audio file', Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        $entityManager->persist($question);
+        $entityManager->flush();
+
+        return new Response('Question updated successfully', Response::HTTP_OK);
+    }
+
+
 }

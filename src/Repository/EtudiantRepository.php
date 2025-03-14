@@ -36,7 +36,7 @@ class EtudiantRepository extends ServiceEntityRepository implements PasswordUpgr
     //    /**
     //     * @return Etudiant[] Returns an array of Etudiant objects
     //     */
-    //    public function findByExampleField($value): array
+    //    public_html function findByExampleField($value): array
     //    {
     //        return $this->createQueryBuilder('e')
     //            ->andWhere('e.exampleField = :val')
@@ -48,7 +48,7 @@ class EtudiantRepository extends ServiceEntityRepository implements PasswordUpgr
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Etudiant
+    //    public_html function findOneBySomeField($value): ?Etudiant
     //    {
     //        return $this->createQueryBuilder('e')
     //            ->andWhere('e.exampleField = :val')

@@ -18,6 +18,19 @@ export default [
             title: "addQuestion",
         },
         component: () => import("../views/addQuestion.vue"),
+    },{
+        path: "/AllQuestions",
+        name: "AllQuestions",
+        meta: {
+            title: "AllQuestions",
+        },
+        component: () => import("../views/questions.vue"),
+    },
+    {
+        path: '/editQuestion/:id',
+        name: 'editQuestion',
+        component: () => import("../views/editQuestion.vue"),
+        props: true
     },
 
     /*

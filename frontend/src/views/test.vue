@@ -81,12 +81,12 @@
             <button @click="previousQuestion"
                     :disabled="currentQuestionIndex === 0"
                     class="btn btn-soft-primary large-button d-block mx-auto">
-              Previous
+              précédent
             </button>
             <button @click="nextQuestion"
                     :disabled="!answers[questions[currentQuestionIndex].id]"
                     class="btn btn-soft-primary large-button d-block mx-auto">
-              {{ currentQuestionIndex === questions.length - 1 ? 'Submit' : 'Next' }}
+              {{ currentQuestionIndex === questions.length - 1 ? 'Submit' : 'Suivant' }}
             </button>
           </div>
         </div>

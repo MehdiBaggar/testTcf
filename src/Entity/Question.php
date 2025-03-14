@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: QuestionRepository::class)]
 class Question
@@ -14,28 +15,35 @@ class Question
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['question', 'test'])]
     private ?int $id = null;
 
     #[ORM\Column(type: "text")]
+    #[Groups(['question', 'test'])]
     private ?string $question = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['question', 'test'])]
     private ?string $type = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['question', 'test'])]
     private ?string $difficulteeeee = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['question', 'test'])]
     private ?string $reponseCorrecte = null;
 
-
     #[ORM\Column(type: Types::SIMPLE_ARRAY, nullable: true)]
+    #[Groups(['question', 'test'])]
     private ?array $reponses = null;
 
     #[ORM\Column(length: 500, nullable: true)]
+    #[Groups(['question', 'test'])]
     private ?string $audio = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['question'])]
     private ?string $userReponse = null;
 
     /**
@@ -45,6 +53,7 @@ class Question
     private Collection $reponseEtudiants;
 
     #[ORM\ManyToOne(inversedBy: 'questions')]
+    #[Groups(['question'])]
     private ?Test $test = null;
 
     public function __construct()

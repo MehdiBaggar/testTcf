@@ -19,7 +19,7 @@ class ReponseEtudiantRepository extends ServiceEntityRepository
     //    /**
     //     * @return ReponseEtudiant[] Returns an array of ReponseEtudiant objects
     //     */
-    //    public function findByExampleField($value): array
+    //    public_html function findByExampleField($value): array
     //    {
     //        return $this->createQueryBuilder('r')
     //            ->andWhere('r.exampleField = :val')
@@ -31,7 +31,7 @@ class ReponseEtudiantRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?ReponseEtudiant
+    //    public_html function findOneBySomeField($value): ?ReponseEtudiant
     //    {
     //        return $this->createQueryBuilder('r')
     //            ->andWhere('r.exampleField = :val')
