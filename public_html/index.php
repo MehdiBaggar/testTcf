@@ -1,6 +1,10 @@
 <?php
 
-use App\Kernel;
+use App\Kernel; // VERY IMPORTANT: Add this line!
+use Symfony\Component\HttpFoundation\Request; // Add this if you're using Request
+use Symfony\Component\ErrorHandler\Debug; // Add this if you're using Debug
+use Symfony\Component\Dotenv\Dotenv; // Add this if you're using Dotenv
+
 header('Access-Control-Allow-Origin: https://d84d-105-154-30-164.ngrok-free.app');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
